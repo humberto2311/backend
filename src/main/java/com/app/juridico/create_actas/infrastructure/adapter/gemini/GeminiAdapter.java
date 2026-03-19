@@ -10,7 +10,12 @@ import java.net.http.HttpResponse;
 @Service
 public class GeminiAdapter implements GeminiService {
 
-    private final String apiKey = "";
+    // Configurable por Railway/variables de entorno.
+    // Ej: GEMINI_API_KEY=AIza....
+    private final String apiKey =
+            System.getenv("GEMINI_API_KEY") == null
+                    ? ""
+                    : System.getenv("GEMINI_API_KEY").trim();
 
     // Cambiado a gemini-pro que es más estable
     // Cambia esta línea:
@@ -19,6 +24,10 @@ public class GeminiAdapter implements GeminiService {
     @Override
     public String askQuestion(String prompt) {
         try {
+            if (apiKey.isEmpty()) {
+                return "Falta la variable de entorno GEMINI_API_KEY";
+            }
+
             // Escapar comillas en el prompt para evitar JSON malformado
             String escapedPrompt = prompt.replace("\"", "\\\"");
             String jsonBody = "{\"contents\": [{\"parts\": [{\"text\": \"" + escapedPrompt + "\"}]}]}";

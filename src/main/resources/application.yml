@@ -24,3 +24,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+
+server:
+  # Railway normalmente inyecta `PORT`. Usamos el env var si existe, con fallback local.
+  port: ${PORT:8080}

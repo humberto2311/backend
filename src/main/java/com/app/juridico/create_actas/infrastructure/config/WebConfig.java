@@ -13,12 +13,25 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                // Railway debe inyectar esta variable con el origen del frontend.
+                // Ej: FRONTEND_URL=https://mi-frontend.railway.app
+                String frontendUrl = System.getenv("FRONTEND_URL");
+                if (frontendUrl == null || frontendUrl.trim().isEmpty()) {
+                    // Default para desarrollo local (cuando no hay envs).
+                    frontendUrl = "http://localhost:5173";
+                }
+
+                // Soportamos lista separada por comas si quieres permitir mas de un origen.
+                String[] origins = frontendUrl.split("\\s*,\\s*");
+
+                // Nota: si usamos '*' NO podemos permitir credenciales en navegadores.
+                boolean allowCredentials = !(origins.length == 1 && origins[0].equals("*"));
+
                 registry.addMapping("/api/**") // Aplica a todos los endpoints de la API
-                        .allowedOrigins("*") // Solo para probar si el problema es CORS o el formato del JSON
-                        .allowedOrigins("http://localhost:5173") // Tu puerto de Vite
+                        .allowedOrigins(origins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(allowCredentials);
             }
         };
 
